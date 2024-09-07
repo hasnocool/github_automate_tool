@@ -33,6 +33,10 @@ def repo_exists_on_github(repo_name):
     result = run_command(["gh", "repo", "view", repo_name], check=False)
     return result is not None
 
+def set_remote_origin(repo_name):
+    run_command(["git", "remote", "remove", "origin"])
+    run_command(["git", "remote", "add", "origin", f"https://github.com/{repo_name}.git"])
+
 def create_repo(directory):
     if not os.path.isdir(directory):
         print(f"Error: Directory '{directory}' does not exist.")
@@ -56,7 +60,8 @@ def create_repo(directory):
         if result is None:
             print(f"Failed to create repository '{dir_name}' on GitHub. It might already exist.")
     else:
-        print(f"Repository '{dir_name}' already exists on GitHub. Skipping creation.")
+        print(f"Repository '{dir_name}' already exists on GitHub. Ensuring remote is set correctly.")
+        set_remote_origin(dir_name)
 
     # Add all files in the directory
     run_command(["git", "add", "."])
