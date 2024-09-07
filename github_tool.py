@@ -23,8 +23,7 @@ def check_gh_auth():
         sys.exit(1)
 
 def get_default_branch():
-    branch = run_command(["git", "config", "--get", "init.defaultBranch"])
-    return branch if branch else "main"
+    return run_command(["gh", "repo", "view", "--json", "defaultBranchRef", "--jq", ".defaultBranchRef.name"]) or "main"
 
 def repo_exists_locally():
     return os.path.isdir(".git")
@@ -35,19 +34,6 @@ def repo_exists_on_github(repo_name):
 
 def get_github_username():
     return run_command(["gh", "api", "user", "-q", ".login"])
-
-def set_remote_origin(repo_name):
-    username = get_github_username()
-    if username:
-        remote_url = f"https://github.com/{username}/{repo_name}.git"
-        run_command(["git", "remote", "remove", "origin"], check=False)
-        result = run_command(["git", "remote", "add", "origin", remote_url])
-        if result is not None:
-            print(f"Remote 'origin' set to {remote_url}")
-        else:
-            print(f"Failed to set remote 'origin' to {remote_url}")
-    else:
-        print("Failed to get GitHub username. Please check your GitHub CLI authentication.")
 
 def create_repo(directory):
     if not os.path.isdir(directory):
@@ -68,12 +54,19 @@ def create_repo(directory):
 
     # Check if the repository exists on GitHub
     if not repo_exists_on_github(dir_name):
-        result = run_command(["gh", "repo", "create", dir_name, "--public", "--source=.", "--remote=origin"])
+        result = run_command(["gh", "repo", "create", dir_name, "--public", "--source=."])
         if result is None:
-            print(f"Failed to create repository '{dir_name}' on GitHub. It might already exist.")
+            print(f"Failed to create repository '{dir_name}' on GitHub.")
+            sys.exit(1)
+        print(f"Repository '{dir_name}' created on GitHub.")
     else:
-        print(f"Repository '{dir_name}' already exists on GitHub. Ensuring remote is set correctly.")
-        set_remote_origin(dir_name)
+        print(f"Repository '{dir_name}' already exists on GitHub. Ensuring it's linked to the local repository.")
+        username = get_github_username()
+        if username:
+            run_command(["gh", "repo", "set-default", f"{username}/{dir_name}"])
+        else:
+            print("Failed to get GitHub username. Please check your GitHub CLI authentication.")
+            sys.exit(1)
 
     # Add all files in the directory
     run_command(["git", "add", "."])
@@ -89,20 +82,16 @@ def create_repo(directory):
     # Get the default branch name
     default_branch = get_default_branch()
 
-    # Check if the branch already exists
-    branches = run_command(["git", "branch"])
-    if default_branch not in branches:
-        run_command(["git", "checkout", "-b", default_branch])
-    else:
-        run_command(["git", "checkout", default_branch])
+    # Ensure we're on the default branch
+    run_command(["git", "checkout", "-B", default_branch])
 
     # Push to the default branch
-    result = run_command(["git", "push", "-u", "origin", default_branch])
+    result = run_command(["gh", "repo", "sync"])
     
     if result is not None:
         print(f"Repository '{dir_name}' has been updated and pushed to GitHub.")
     else:
-        print(f"Repository '{dir_name}' has been updated locally, but there was an issue pushing to GitHub.")
+        print(f"Repository '{dir_name}' has been updated locally, but there was an issue syncing with GitHub.")
         print("You may need to push manually or check your GitHub permissions.")
 
 def create_gist(file_path):
