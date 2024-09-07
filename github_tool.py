@@ -33,9 +33,21 @@ def repo_exists_on_github(repo_name):
     result = run_command(["gh", "repo", "view", repo_name], check=False)
     return result is not None
 
+def get_github_username():
+    return run_command(["gh", "api", "user", "-q", ".login"])
+
 def set_remote_origin(repo_name):
-    run_command(["git", "remote", "remove", "origin"])
-    run_command(["git", "remote", "add", "origin", f"https://github.com/{repo_name}.git"])
+    username = get_github_username()
+    if username:
+        remote_url = f"https://github.com/{username}/{repo_name}.git"
+        run_command(["git", "remote", "remove", "origin"], check=False)
+        result = run_command(["git", "remote", "add", "origin", remote_url])
+        if result is not None:
+            print(f"Remote 'origin' set to {remote_url}")
+        else:
+            print(f"Failed to set remote 'origin' to {remote_url}")
+    else:
+        print("Failed to get GitHub username. Please check your GitHub CLI authentication.")
 
 def create_repo(directory):
     if not os.path.isdir(directory):
