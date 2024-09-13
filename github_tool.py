@@ -3,6 +3,7 @@ import subprocess
 import sys
 import argparse
 import json
+import shutil
 
 def run_command(command, cwd=None, check=True):
     try:
@@ -53,10 +54,7 @@ def link_to_github(dir_name):
     repo_url = f"https://github.com/{username}/{dir_name}.git"
     print(f"Attempting to link local repository to {repo_url}")
     
-    # Remove existing origin if it exists
     run_command(["git", "remote", "remove", "origin"], check=False)
-    
-    # Add new origin
     result = run_command(["git", "remote", "add", "origin", repo_url])
     if result is None:
         print(f"Failed to add remote origin {repo_url}")
@@ -65,73 +63,55 @@ def link_to_github(dir_name):
     print(f"Successfully added remote origin {repo_url}")
     return True
 
-def create_repo(directory):
-    if not os.path.isdir(directory):
-        print(f"Error: Directory '{directory}' does not exist.")
+def get_full_path(folder_name):
+    if os.path.isabs(folder_name):
+        return folder_name
+    return os.path.join(os.path.expanduser("~"), "Github", "experimental", folder_name)
+
+def publish_repo(folder_path):
+    if not os.path.isdir(folder_path):
+        print(f"Error: Directory '{folder_path}' does not exist.")
         sys.exit(1)
 
-    # Change to the specified directory
-    os.chdir(directory)
+    os.chdir(folder_path)
+    dir_name = os.path.basename(os.path.abspath(folder_path))
 
-    # Get the directory name
-    dir_name = os.path.basename(os.path.abspath(directory))
-
-    # Check if the repository already exists locally
     if not repo_exists_locally():
         run_command(["git", "init"])
         print("Initialized new git repository.")
-    else:
-        print("Local git repository already exists. Skipping initialization.")
 
-    # Check if the repository exists on GitHub
-    if repo_exists_on_github(dir_name):
-        print(f"Repository '{dir_name}' already exists on GitHub.")
-        link_choice = input("Do you want to link the local repository to the existing GitHub repository? (y/n): ").lower()
-        if link_choice == 'y':
-            if link_to_github(dir_name):
-                print("Successfully linked to existing GitHub repository.")
-            else:
-                print("Failed to link to existing GitHub repository.")
-                return
-        else:
-            print("Skipping linking to GitHub repository.")
-            return
+    if not repo_exists_on_github(dir_name):
+        result = run_command(["gh", "repo", "create", dir_name, "--public", "--source=."])
+        if result is None:
+            print(f"Failed to create repository '{dir_name}' on GitHub.")
+            sys.exit(1)
+        print(f"Repository '{dir_name}' created on GitHub.")
     else:
-        create_choice = input(f"Repository '{dir_name}' doesn't exist on GitHub. Do you want to create it? (y/n): ").lower()
-        if create_choice == 'y':
-            result = run_command(["gh", "repo", "create", dir_name, "--public", "--source=."])
-            if result is None:
-                print(f"Failed to create repository '{dir_name}' on GitHub.")
-                print("You may need to create the repository manually on GitHub and then link it.")
-                return
-            print(f"Repository '{dir_name}' created on GitHub.")
-        else:
-            print("Skipping GitHub repository creation.")
-            return
+        print(f"Repository '{dir_name}' already exists on GitHub. Linking local repository.")
+        if not link_to_github(dir_name):
+            sys.exit(1)
 
-    # Add all files in the directory
     run_command(["git", "add", "."])
+    run_command(["git", "commit", "-m", "Initial commit"])
+    run_command(["git", "push", "-u", "origin", get_default_branch()])
+    print(f"Repository '{dir_name}' has been pushed to GitHub.")
 
-    # Check if there are changes to commit
-    status = run_command(["git", "status", "--porcelain"])
-    if status:
-        # Commit with an automatic message
-        run_command(["git", "commit", "-m", "Automatic commit: Updated files"])
-        print("Changes committed locally.")
-    else:
-        print("No changes to commit.")
+    active_path = os.path.join(os.path.expanduser("~"), "Github", "active")
+    new_path = os.path.join(active_path, dir_name)
+    
+    os.makedirs(active_path, exist_ok=True)
+    shutil.move(folder_path, new_path)
+    print(f"Moved '{dir_name}' to {new_path}")
 
-    # Push to the default branch
-    push_choice = input("Do you want to push changes to GitHub? (y/n): ").lower()
-    if push_choice == 'y':
-        result = run_command(["git", "push", "-u", "origin", get_default_branch()])
-        if result is not None:
-            print(f"Repository '{dir_name}' has been updated and pushed to GitHub.")
-        else:
-            print(f"Repository '{dir_name}' has been updated locally, but there was an issue pushing to GitHub.")
-            print("You may need to push manually or check your GitHub permissions.")
+    os.chdir(active_path)
+    clone_result = run_command(["git", "clone", f"https://github.com/{get_github_username()}/{dir_name}.git"])
+    
+    if clone_result is not None:
+        print(f"Successfully cloned repository to {new_path}")
+        shutil.rmtree(new_path)
+        print(f"Removed original folder: {new_path}")
     else:
-        print("Skipping push to GitHub. You can push changes manually later.")
+        print(f"Failed to clone repository. The original folder remains at {new_path}")
 
 def create_gist(file_path):
     if not os.path.exists(file_path):
@@ -144,10 +124,102 @@ def create_gist(file_path):
     else:
         print("There was an issue creating the Gist.")
 
+def create_repo(directory):
+    if not os.path.isdir(directory):
+        print(f"Error: Directory '{directory}' does not exist.")
+        sys.exit(1)
+
+    os.chdir(directory)
+    dir_name = os.path.basename(os.path.abspath(directory))
+
+    if not repo_exists_locally():
+        run_command(["git", "init"])
+        print("Initialized new git repository.")
+
+    if not repo_exists_on_github(dir_name):
+        result = run_command(["gh", "repo", "create", dir_name, "--public", "--source=."])
+        if result is None:
+            print(f"Failed to create repository '{dir_name}' on GitHub.")
+            sys.exit(1)
+        print(f"Repository '{dir_name}' created on GitHub.")
+    else:
+        print(f"Repository '{dir_name}' already exists on GitHub. Linking local repository.")
+        if not link_to_github(dir_name):
+            sys.exit(1)
+
+    run_command(["git", "add", "."])
+    run_command(["git", "commit", "-m", "Initial commit"])
+    run_command(["git", "push", "-u", "origin", get_default_branch()])
+    print(f"Repository '{dir_name}' has been created and pushed to GitHub.")
+
+def rename_folder(folder_path, new_name):
+    if not os.path.isdir(folder_path):
+        print(f"Error: Directory '{folder_path}' does not exist.")
+        sys.exit(1)
+
+    os.chdir(folder_path)
+    old_name = os.path.basename(os.path.abspath(folder_path))
+    parent_dir = os.path.dirname(folder_path)
+    new_path = os.path.join(parent_dir, new_name)
+
+    os.rename(folder_path, new_path)
+    print(f"Renamed folder from '{old_name}' to '{new_name}'")
+
+    run_command(["git", "remote", "set-url", "origin", f"https://github.com/{get_github_username()}/{new_name}.git"])
+
+    run_command(["git", "add", "."])
+    run_command(["git", "commit", "-m", f"Renamed repository from {old_name} to {new_name}"])
+    run_command(["git", "push", "-u", "origin", get_default_branch()])
+    print(f"Changes pushed to GitHub with new name '{new_name}'")
+
+def update_repo(directory, commit_message):
+    if not os.path.isdir(directory):
+        print(f"Error: Directory '{directory}' does not exist.")
+        sys.exit(1)
+
+    os.chdir(directory)
+
+    if not repo_exists_locally():
+        print("Initializing new git repository.")
+        run_command(["git", "init"])
+
+    dir_name = os.path.basename(os.path.abspath(directory))
+
+    if not repo_exists_on_github(dir_name):
+        print(f"Creating new repository '{dir_name}' on GitHub.")
+        result = run_command(["gh", "repo", "create", dir_name, "--public", "--source=."])
+        if result is None:
+            print(f"Failed to create repository '{dir_name}' on GitHub.")
+            sys.exit(1)
+    else:
+        print(f"Repository '{dir_name}' already exists on GitHub. Ensuring local repository is linked.")
+        link_to_github(dir_name)
+
+    run_command(["git", "add", "."])
+    run_command(["git", "commit", "-m", commit_message])
+    
+    branch = get_default_branch()
+    push_result = run_command(["git", "push", "-u", "origin", branch])
+    
+    if push_result is None:
+        print(f"Failed to push to GitHub. Trying to pull and merge changes.")
+        run_command(["git", "pull", "--rebase", "origin", branch])
+        push_result = run_command(["git", "push", "-u", "origin", branch])
+        
+        if push_result is None:
+            print("Still unable to push. Please resolve conflicts manually.")
+            sys.exit(1)
+
+    print(f"Changes in '{directory}' have been committed and pushed to GitHub.")
+
 def main():
-    parser = argparse.ArgumentParser(description="GitHub repository initialization and Gist creation tool")
+    parser = argparse.ArgumentParser(description="GitHub repository management tool")
     parser.add_argument("--gist", help="Create a Gist from the specified file", metavar="FILE")
-    parser.add_argument("--dir", help="Specify the directory to create a repository for", default=".")
+    parser.add_argument("--create", help="Create a new repository for the specified directory", metavar="DIR")
+    parser.add_argument("--publish", help="Publish the specified folder to GitHub", metavar="FOLDER")
+    parser.add_argument("--rename", nargs=2, metavar=('FOLDER', 'NEW_NAME'), help="Rename the specified folder and update GitHub")
+    parser.add_argument("--update", nargs='?', const='.', default=None, metavar="DIR", help="Update the specified directory (default: current directory)")
+    parser.add_argument("--message", "-m", help="Commit message for update", default="Update repository")
     args = parser.parse_args()
 
     check_gh_installed()
@@ -155,8 +227,17 @@ def main():
 
     if args.gist:
         create_gist(args.gist)
+    elif args.create:
+        create_repo(args.create)
+    elif args.publish:
+        full_path = get_full_path(args.publish)
+        publish_repo(full_path)
+    elif args.rename:
+        rename_folder(args.rename[0], args.rename[1])
+    elif args.update is not None:
+        update_repo(args.update, args.message)
     else:
-        create_repo(args.dir)
+        parser.print_help()
 
 if __name__ == "__main__":
     main()
