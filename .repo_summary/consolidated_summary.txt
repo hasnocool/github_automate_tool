@@ -1,24 +1,41 @@
-Here's a summary of the project:
+Here's a summary of the project in the specified format:
 
-**1. Project Name:** Github_Automate_Tool
-**2. Short Description:** A command-line interface tool that automates various GitHub repository management tasks with ease and efficiency.
-**3. Overall Description:** This project is an automation tool for managing GitHub repositories, allowing users to create new pull requests, list existing ones, add collaborators, and even manage GitHub Actions workflows - all from the comfort of their terminal! With this tool, developers can save time and streamline their workflow by automating repetitive tasks. I built this tool using Python's argparse module to parse command-line arguments and execute specific actions.
-**4. Main Purpose:** I built this tool to make it easier for developers to manage their GitHub repositories without having to manually navigate the platform or write complex scripts. By providing a simple, intuitive interface, Github_Automate_Tool aims to reduce developer fatigue and increase productivity.
-**5. Key Technologies:**
-	- Python
-	- Argparse module
-	- GitPython library (for interacting with GitHub APIs)
-**6. Unique Features:**
-	- One cool feature is the ability to create new pull requests and list existing ones, all from the command line!
-	- The tool also supports adding collaborators to repositories and managing GitHub Actions workflows.
-	- I'm thinking about adding more features in the future, such as the ability to update repository details and manage issues.
-**7. Future Improvements:**
-	- I'd like to add support for more GitHub API endpoints to expand the tool's functionality.
-	- Improving error handling and providing more informative feedback to users would also be a great next step.
-**8. Personal Notes:** Working on this project has been an exciting experience, allowing me to delve deeper into Python programming and explore various GitHub APIs. I'm proud of what I've accomplished so far!
-**9. GitHub Tags:** command-line-tool, github-automation, python-scripting, gitpython-library, argparse-module, repository-management, developer-productivity
+1. **Project Name:** Github_Automate_Tool
+2. **Short Description:** A Python script that automates various tasks on GitHub using the GitHub CLI.
+3. **Overall Description:** This project aims to create a comprehensive tool for automating tasks on GitHub, making it easier to manage repositories, workflows, and other aspects of GitHub usage. The tool is built using Python and leverages the GitHub CLI for its functionality.
+4. **Main Purpose:** To provide an all-in-one solution for automating tasks on GitHub, reducing the need for manual intervention and increasing productivity.
+5. **Key Technologies:**
+   - `argparse` for parsing command-line arguments
+   - `subprocess` for executing system commands
+   - `shutil` for handling file operations
+   - `shlex` for splitting shell-like strings into arguments
+   - `os` for interacting with the operating system
+   - `datetime` for working with dates and times
+   - GitHub CLI for interacting with GitHub APIs
+6. **Unique Features:**
+   - Automatic repository creation, publishing, renaming, updating, and deleting
+   - Support for creating, listing, switching, and deleting branches
+   - Ability to clone repositories, list cloned repositories, and delete them
+   - Integration with GitHub Actions for workflow management
+7. **Future Improvements:**
+   - Add support for more advanced features like issue tracking and pull request management
+   - Improve performance by optimizing command execution and caching results
+8. **Personal Notes:** This project is still in its early stages, and there are many areas where improvements can be made.
+9. **GitHub Tags:** automation,github-cli,python-scripting,repository-management,workflow-management,branch-management,clone-repo,list-branches,delete-repo,create-pull-request,issue-tracking,pull-request-management
+10. **Installable Modules:** sys, datetime, subprocess, shutil, shlex, os, argparse, json
+11. **Suggested Folder Names:** scripts,github-cli,repository-manager,workflow-engine,branch-manager
+12. **Root Project Folder Name Suggestions:** github-automate-tool, repository-manager, workflow-engine
 
-# Extractable Variables
-SHORT_DESCRIPTION = "A command-line interface tool that automates various GitHub repository management tasks with ease and efficiency. 3. Overall Description: This project is an automation tool for managing GitHub repositories, allowing users to create new pull requests, list existing ones, add collaborators, and even manage GitHub Actions workflows - all from the comfort of their terminal! With this tool, developers can save time and streamline their workflow by automating repetitive tasks. I built this tool using Python's argparse module to parse command-line arguments and execute specific actions. 4. Main Purpose: I built this tool to make it easier for developers to manage their GitHub repositories without having to manually navigate the platform or write complex scripts. By providing a simple, intuitive interface, Github_Automate_Tool aims to reduce developer fatigue and increase productivity. 5. Key Technologies: - Python - Argparse module - GitPython library (for interacting with GitHub APIs) 6. Unique Features: - One cool feature is the ability to create new pull requests and list existing ones, all from the command line! - The tool also supports adding collaborators to repositories and managing GitHub Actions workflows. - I'm thinking about adding more features in the future, such as the ability to update repository details and manage issues. 7. Future Improvements: - I'd like to add support for more GitHub API endpoints to expand the tool's functionality. - Improving error handling and providing more informative feedback to users would also be a great next step. 8. Personal Notes: Working on this project has been an exciting experience, allowing me to delve deeper into Python programming and explore various GitHub APIs. I'm proud of what I've accomplished so far! 9. GitHub Tags: command-line-tool, github-automation, python-scripting, gitpython-library, argparse-module, repository-management, developer-productivity"
-OVERALL_DESCRIPTION = "This project is an automation tool for managing GitHub repositories, allowing users to create new pull requests, list existing ones, add collaborators, and even manage GitHub Actions workflows - all from the comfort of their terminal! With this tool, developers can save time and streamline their workflow by automating repetitive tasks. I built this tool using Python's argparse module to parse command-line arguments and execute specific actions. 4. Main Purpose: I built this tool to make it easier for developers to manage their GitHub repositories without having to manually navigate the platform or write complex scripts. By providing a simple, intuitive interface, Github_Automate_Tool aims to reduce developer fatigue and increase productivity. 5. Key Technologies: - Python - Argparse module - GitPython library (for interacting with GitHub APIs) 6. Unique Features: - One cool feature is the ability to create new pull requests and list existing ones, all from the command line! - The tool also supports adding collaborators to repositories and managing GitHub Actions workflows. - I'm thinking about adding more features in the future, such as the ability to update repository details and manage issues. 7. Future Improvements: - I'd like to add support for more GitHub API endpoints to expand the tool's functionality. - Improving error handling and providing more informative feedback to users would also be a great next step. 8. Personal Notes: Working on this project has been an exciting experience, allowing me to delve deeper into Python programming and explore various GitHub APIs. I'm proud of what I've accomplished so far! 9. GitHub Tags: command-line-tool, github-automation, python-scripting, gitpython-library, argparse-module, repository-management, developer-productivity"
-GITHUB_TAGS = "command-line-tool, github-automation, python-scripting, gitpython-library, argparse-module, repository-management, developer-productivity"
+# Extracted Variables:
+PROJECT_NAME = "Github_Automate_Tool"
+SHORT_DESCRIPTION = "A Python script that automates various tasks on GitHub using the GitHub CLI."
+OVERALL_DESCRIPTION = "This project aims to create a comprehensive tool for automating tasks on GitHub, making it easier to manage repositories, workflows, and other aspects of GitHub usage. The tool is built using Python and leverages the GitHub CLI for its functionality."
+MAIN_PURPOSE = "To provide an all-in-one solution for automating tasks on GitHub, reducing the need for manual intervention and increasing productivity."
+KEY_TECHNOLOGIES = "`argparse` for parsing command, line arguments, `subprocess` for executing system commands, `shutil` for handling file operations, `shlex` for splitting shell, like strings into arguments, `os` for interacting with the operating system, `datetime` for working with dates and times, GitHub CLI for interacting with GitHub APIs"
+UNIQUE_FEATURES = "Automatic repository creation, publishing, renaming, updating, and deleting, Support for creating, listing, switching, and deleting branches, Ability to clone repositories, list cloned repositories, and delete them, Integration with GitHub Actions for workflow management"
+FUTURE_IMPROVEMENTS = "Add support for more advanced features like issue tracking and pull request management, Improve performance by optimizing command execution and caching results"
+PERSONAL_NOTES = "This project is still in its early stages, and there are many areas where improvements can be made."
+GITHUB_TAGS = "automation, github, cli, python, scripting, repository, management, workflow, management, branch, management, clone, repo, list, branches, delete, repo, create, pull, request, issue, tracking, pull, request, management"
+INSTALLABLE_MODULES = "None"
+SUGGESTED_FOLDER_NAMES = "scripts, github, cli, repository, manager, workflow, engine, branch, manager"
+ROOT_PROJECT_FOLDER_NAME_SUGGESTIONS = "github, automate, tool, repository, manager, workflow, engine"
